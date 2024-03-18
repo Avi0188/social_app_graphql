@@ -1,3 +1,4 @@
+// Import required modules
 const { ApolloServer } = require("apollo-server");
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
@@ -5,28 +6,31 @@ const jwt = require('jsonwebtoken');
 const { typeDefs } = require("./schemaGQL.js");
 const { resolvers } = require("./resolver.js");
 
+
 dotenv.config();
 
+
 mongoose.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    
 });
 
+
 mongoose.connection.on("connected", () => {
-    console.log("connected to mongodb")
+    console.log("Connected to MongoDB");
 });
 
 mongoose.connection.on("error", (err) => {
-    console.log("error connecting", err)
+    console.error("Error connecting to MongoDB:", err);
 });
 
 const context = ({ req }) => {
     const { authorization } = req.headers;
     if (authorization) {
-        const { userId } = jwt.verify(authorization, process.env.SECRET)
-        return { userId }
+        const { userId } = jwt.verify(authorization, process.env.SECRET);
+        return { userId };
     }
 };
+
 
 const server = new ApolloServer({
     typeDefs,
@@ -34,6 +38,7 @@ const server = new ApolloServer({
     context
 });
 
+
 server.listen().then(({ url }) => {
-    console.log(`server ready at ${url}`);
+    console.log(`Server ready at ${url}`);
 });
